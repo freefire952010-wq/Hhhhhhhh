@@ -14,7 +14,8 @@ _G.ESPInnocent, _G.ESPSheriff, _G.ESPMurderer = false, false, false
 _G.AimbotSheriff, _G.AimbotMurderer = false, false
 _G.Noclip, _G.Flying, _G.FlySpeed = false, false, 60
 
-local ScreenGui = Instance.new("ScreenGui", CoreGui)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = LP:WaitForChild("PlayerGui")
 ScreenGui.Name, ScreenGui.ResetOnSpawn = "SonLamMM2FinalGui", false
 
 local function Create(class, parent, props)
@@ -44,7 +45,6 @@ AddCorner(SubmitBtn, UDim.new(0, 5))
 local GetKeyBtn = Create("TextButton", KeySystemFrame, {BackgroundColor3 = Color3.fromRGB(40, 40, 40), BorderSizePixel = 0, Position = UDim2.new(0.53, 5, 0, 118), Size = UDim2.new(0.47, -5, 0, 36), Font = Enum.Font.GothamBold, Text = "LẤY KEY", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 12})
 AddCorner(GetKeyBtn, UDim.new(0, 5))
 
--- Vòng FOV thu nhỏ vừa vặn (Bán kính 80, Đường kính 160)
 local AimCircle = Create("Frame", ScreenGui, {AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, 160, 0, 160), Visible = false})
 AddCorner(AimCircle, UDim.new(1, 0))
 Create("UIStroke", AimCircle, {Color = Color3.fromRGB(0, 255, 127), Thickness = 1.5})
@@ -209,7 +209,6 @@ local function GetRole(p)
     return Color3.fromRGB(0, 255, 0), "Innocent"
 end
 
--- Hàm tìm kiếm Murderer chuẩn xác trong bán kính FOV 80 pixels (Ghim vào NGƯỜI / Thân nhân vật)
 local function GetClosestMurdererInFOV()
     local targetPart = nil
     local shortestDist = 80
@@ -276,7 +275,6 @@ RunService.RenderStepped:Connect(function()
         end)
     end
 
-    -- GHIM THẲNG VÀO NGƯỜI MUDER KHI Ở TRONG VÒNG FOV
     if _G.AimbotSheriff then
         pcall(function()
             local targetPart = GetClosestMurdererInFOV()
@@ -289,7 +287,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- NÚT BẮN: Khắc phục triệt để lỗi kẹt phím / kẹt nút di chuyển sau khi bắn
 ShootButton.MouseButton1Click:Connect(function()
     if _G.AimbotSheriff then
         pcall(function()
@@ -312,7 +309,6 @@ ShootButton.MouseButton1Click:Connect(function()
                     vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
                 end
                 
-                -- Ép buộc làm mới lại bộ điều khiển di chuyển để mở khóa ngay lập tức các nút di chuyển
                 task.delay(0.04, function()
                     if hum then
                         hum.PlatformStand = false
@@ -336,4 +332,9 @@ task.spawn(function()
         if _G.AimbotMurderer then
             pcall(function()
                 local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
-  
+                if hrp then
+                    for _, p in pairs(Players:GetPlayers()) do
+                        if p ~= LP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                            local hum = p.Character:FindFirstChild("Humanoid")
+                            if hum and hum.Health > 0 then
+                  
